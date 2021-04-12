@@ -25,8 +25,8 @@ int main(int argc, char *argv[]) {
 
     const char* scriptName = "myscript";
 
-    Media *media = new Media();
-    media->init("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, false);
+    Media *media = Media::init("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, false);
+    //media->init("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, false);
     if(media == nullptr) {
         println("Failed to init media");
     } else {
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
             /*if(Py_FinalizeEx() < 0) {
                 return 120;
             }*/
-
+            media->loadMedia();
             media->render();
         }
     }
