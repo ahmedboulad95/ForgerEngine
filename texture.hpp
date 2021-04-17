@@ -56,9 +56,15 @@ class Texture {
             }
         }
 
-        void render(SDL_Renderer* renderer, int x, int y) {
+        void render(SDL_Renderer* renderer, int x, int y, SDL_Rect* clip=NULL) {
             SDL_Rect renderQuad = { x, y, _width, _height };
-            SDL_RenderCopy(renderer, _texture, NULL, &renderQuad);
+
+            if(clip != NULL) {
+                renderQuad.w = clip->w;
+                renderQuad.h = clip->h;
+            }
+
+            SDL_RenderCopy(renderer, _texture, clip, &renderQuad);
         }
 
         int getWidth() { return _width; }

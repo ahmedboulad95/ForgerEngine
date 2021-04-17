@@ -7,13 +7,17 @@
 #include "input.hpp"
 #include "texture.hpp"
 
+const int WALKING_ANIMATION_FRAMES = 4;
+
 class Media {
     private:
         Media() {}
         SDL_Window* window_;
         SDL_Renderer* renderer_;
         Texture texture_;
+        SDL_Rect clips_[WALKING_ANIMATION_FRAMES];
         bool isRunning_;
+        int frame;
         
     public:
         ~Media() { this->clean(); }
@@ -28,6 +32,8 @@ class Media {
             if(fullScreen) {
                 flags = SDL_WINDOW_FULLSCREEN;
             }
+
+            media->frame = 0;
             
             if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
                 std::cout << "SDL initialization failed. SDL_ERROR: " << SDL_GetError() << std::endl;
@@ -37,7 +43,7 @@ class Media {
                 if(media->window_ == nullptr) {
                     std::cout << "Failed to create window. SDL_ERROR: " << SDL_GetError() << std::endl;
                 } else {
-                    media->renderer_ = SDL_CreateRenderer(media->window_, -1, 0);
+                    media->renderer_ = SDL_CreateRenderer(media->window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
                     
                     if(media->renderer_ == nullptr) {
                         std::cout << "Failed to create renderer. SDL_Error: " << SDL_GetError() << std::endl;
@@ -64,35 +70,40 @@ class Media {
             }
         }
 
-        /*SDL_Texture* loadTexture(std::string path) {
-            SDL_Texture* newTexture = NULL;
-
-            SDL_Surface* loadedSurface = IMG_Load(path.c_str());
-            if(loadedSurface == NULL) {
-                std::cout << "Unable to load image " << path.c_str() << " SDL_image error: " << IMG_GetError() << std::endl;
-            } else {
-                newTexture = SDL_CreateTextureFromSurface(renderer_, loadedSurface);
-                if(newTexture == NULL) {
-                    std::cout << "Unable to create texture from " << path.c_str() << " SDL Error: " << SDL_GetError() << std::endl;
-                }
-                SDL_FreeSurface(loadedSurface);
-            }
-            return newTexture;
-        }*/
-
         void loadMedia() {
-            texture_ = Texture();//this->loadTexture("boy.png");
-            
             if(!texture_.loadFromFile(renderer_, "boy.png")) {
                 std::cout << "Failed to load texture image!" << std::endl;
+            } else {
+                clips_[0].x = 0;
+                clips_[0].y = 0;
+                clips_[0].w = 64;
+                clips_[0].h = 64;
+
+                clips_[1].x = 64;
+                clips_[1].y = 0;
+                clips_[1].w = 64;
+                clips_[1].h = 64;
+
+                clips_[2].x = 128;
+                clips_[2].y = 0;
+                clips_[2].w = 64;
+                clips_[2].h = 64;
+
+                clips_[3].x = 196;
+                clips_[3].y = 0;
+                clips_[3].w = 64;
+                clips_[3].h = 64;
             }
         }
         
         void render() {
             SDL_RenderClear(renderer_);
-            //SDL_RenderCopy(renderer_, texture_, NULL, NULL);
-            texture_.render(renderer_, 0, 0);
+            SDL_Rect* currentClip = &clips_[frame/4];
+            texture_.render(renderer_, 0, 0, currentClip);
             SDL_RenderPresent(renderer_);
+            ++frame;
+            if(frame / 4 >= WALKING_ANIMATION_FRAMES)
+                frame = 0;
         }
         
         bool running() {
